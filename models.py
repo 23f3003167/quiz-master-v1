@@ -1,37 +1,58 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 
-app = Flask(__name__)
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quiz_master.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-db = SQLAlchemy(app)
+db = SQLAlchemy()
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
-    password = db.Column(db.String(100), nullable=False)
-    full_name = db.Column(db.String(100))
-    qualification = db.Column(db.String(100))
-    dob = db.Column(db.Date)
+    _password = db.Column(db.String(255), nullable=False)
+    full_name = db.Column(db.String(100), nullable=False)
+    qualification = db.Column(db.String(100), nullable=False)
+    dob = db.Column(db.Date, nullable=False)
+    role = db.Column(db.String(10), nullable=False)
+
+    @property
+    def password(self):
+        raise AttributeError("Password is not readable")
+    
+    @password.setter
+    def password(self, password):
+        self._password = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self._password, password)
+        
 
 class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
-    password = db.Column(db.String(100), unique=True, nullable=False)
+    _password = db.Column(db.String(255), nullable=False)
+    role = db.Column(db.String(10), nullable=False)
+
+    @property
+    def password(self):
+        raise AttributeError("Password is not readable")
+    
+    @password.setter
+    def password(self, password):
+        self._password = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self._password, password)
 
 class Subject(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String(100), unique=True,  nullable=False)
     description = db.Column(db.Text)
 
 class Chapter(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     subject_id = db.Column(db.Integer, db.ForeignKey('subject.id'), nullable=False)
-    name = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String(100), unique=True, nullable=False)
     description = db.Column(db.Text)
-    subject = db.relationship('subject', backref=db.backref('chapters', lazy=True))
+    subject = db.relationship('Subject', backref=db.backref('chapters', lazy=True))
 
 class Quiz(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -39,7 +60,7 @@ class Quiz(db.Model):
     date_of_quiz = db.Column(db.Date)
     time_duration = db.Column(db.String(10))
     remarks = db.Column(db.Text)
-    chapter = db.relationship('chapter', backref=db.backref('quizzes', lazy=True))
+    chapter = db.relationship('Chapter', backref=db.backref('quizzes', lazy=True))
     
 
 class Question(db.Model):
@@ -51,7 +72,7 @@ class Question(db.Model):
     option_3 = db.Column(db.String(100))
     option_4 = db.Column(db.String(100))
     correct_option = db.Column(db.Integer)
-    quiz = db.relationship('quiz', backref=db.backref('questions', lazy=True))
+    quiz = db.relationship('Quiz', backref=db.backref('questions', lazy=True))
 
 
 class Score(db.Model):
@@ -60,12 +81,5 @@ class Score(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     time_stamp_of_attempt = db.Column(db.DateTime)
     total_scored = db.Column(db.Integer)
-    quiz = db.relationship('quiz', backref=db.backref('scores', lazy=True))
-    user = db.relationship('user', backref=db.backref('scores', lazy=True))
-
-if __name__=='__main__':
-    with app.app_context():
-        db.create_all()
-        print('Tables created.')
-
-
+    quiz = db.relationship('Quiz', backref=db.backref('scores', lazy=True))
+    user = db.relationship('User', backref=db.backref('scores', lazy=True))
