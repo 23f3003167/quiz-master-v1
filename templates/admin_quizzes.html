@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Quizzes</title>
+</head>
+<body>
+    <h1>Manage Quizzes for {{chapter.name}}</h1>
+
+    <h2>Add New Quiz</h2>
+    <form method="POST">
+        <label>Title:</label>
+        <input type="text" name="title" required><br>
+
+        <label>Date of Quiz:</label>
+        <input type="date" name="date_of_quiz" required><br>
+
+        <label>Time Duration (in minutes):</label>
+        <input type="text" name="time_duration" required><br>
+
+        <label>Remarks:</label>
+        <textarea name="remarks"></textarea><br>
+
+        <button type="submit">Add Quiz</button>
+    </form>
+
+    <h2>All Quizzes</h2>
+    <table border="1">
+        <tr>
+            <th>Quiz Title</th>
+            <th>Date of Quiz</th>
+            <th>Duration</th>
+            <th>Remarks</th>
+            <th>Actions</th>
+        </tr>
+        {% for quiz in quizzes %}
+        <tr>
+            <td>{{quiz.title}}</td>
+            <td>{{quiz.date_of_quiz}}</td>
+            <td>{{quiz.time_duration}}</td>
+            <td>{{quiz.remarks}}</td>
+            <td>
+                <form method="get" action="{{url_for('manage_questions', quiz_id=quiz.id)}}" style="display:inline">
+                    <button type="submit">View</button>
+                </form>
+                <form method="get" action="{{url_for('edit_quiz', quiz_id=quiz.id)}}" style="display:inline">
+                    <button type="submit">Edit</button>
+                </form>
+                <form method="post" action="{{url_for('delete_quiz', quiz_id=quiz.id)}}" style="display:inline">
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <hr>
+    
+    <a href="{{url_for('manage_chapters', subject_id=chapter.subject_id)}}">Back to Chapters</a>
+</body>
+</html>

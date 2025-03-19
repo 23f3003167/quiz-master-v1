@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Subject</title>
+</head>
+<body>
+    <h1>Edit Subject</h1>
+    <form method="post">
+        <input type="text" name="name" value="{{subject.name}}" required><br>
+        <textarea name="description">{{subject.description}}</textarea><br>
+        <button type="submit">Update Subject</button>
+    </form>
+    <a href="{{url_for('manage_subjects')}}">Cancel</a>
+</body>
+</html>

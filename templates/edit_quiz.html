@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Quiz</title>
+</head>
+<body>
+    <h1>Edit Quiz</h1>
+    <form method="Post">
+        <label>Title:</label>
+        <input type="text" name="title" value="{{quiz.title}}" required><br>
+
+        <label>Date of Quiz:</label>
+        <input type="date" name="date_of_quiz" value="{{quiz.date_of_quiz.strftime('%Y-%m-%d')}}" required><br>
+
+        <label>Time Duration (in minutes):</label>
+        <input type="text" name="time_duration" value="{{quiz.time_duration}}" required><br>
+
+        <label>Remarks:</label>
+        <textarea name="remarks">{{quiz.remarks}}</textarea><br>
+
+        <button type="submit">Update Quiz</button>
+    </form>
+    <a href="{{url_for('manage_quizzes', chapter_id=quiz.chapter_id)}}">Cancel</a>
+</body>
+</html>

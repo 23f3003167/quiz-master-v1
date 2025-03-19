@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Chapter</title>
+</head>
+<body>
+    <h1>Edit Chapter</h1>
+    <form method="post">
+        <input type="text" name="name" value="{{chapter.name}}" required><br>
+        <textarea name="description">{{chapter.description}}</textarea><br>
+        <button type="submit">Update Chapter</button>
+    </form>
+    <a href="{{url_for('manage_chapters', subject_id=chapter.subject_id)}}">Cancel</a>
+</body>
+</html>

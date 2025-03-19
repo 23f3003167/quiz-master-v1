@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Chapters</title>
+</head>
+<body>
+    <h1>Manage Chapters for {{subject.name}}</h1>
+
+    <h2>Add New Chapter</h2>
+    <form method="post">
+        <input type="text" name="name" placeholder="Chapter Name" required><br>
+        <textarea name="description" placeholder="Description"></textarea><br>
+        <button type="submit">Add Chapter</button>
+    </form>
+
+    <hr>
+
+    <h2>All Chapters</h2>
+    <table border="1">
+        <tr>
+            <th>Chapter Name</th>
+            <th>Description</th>
+            <th>Actions</th>
+        </tr>
+        {% for chapter in chapters %}
+        <tr>
+            <td>{{chapter.name}}</td>
+            <td>{{chapter.description}}</td>
+            <td>
+                <form method="get" action="{{url_for('manage_quizzes', chapter_id=chapter.id)}}" style="display:inline">
+                    <button type="submit">View</button>
+                </form>
+                <form method="get" action="{{url_for('edit_chapter', chapter_id=chapter.id)}}" style="display:inline">
+                    <button type="submit">Edit</button>
+                </form>
+                <form method="post" action="{{url_for('delete_chapter', chapter_id=chapter.id)}}" style="display:inline">
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <hr>
+    <a href="{{url_for('manage_subjects')}}">Back to Subjects</a>
+</body>
+</html>

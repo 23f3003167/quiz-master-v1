@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Subjects</title>
+</head>
+<body>
+    <h1>Manage Subjects</h1>
+
+    <h2>Add New Subject</h2>
+    <form method="post">
+        <input type="text" name="name" placeholder="Subject Name" required><br>
+        <textarea name="description" placeholder="Description"></textarea><br>
+        <button type="submit">Add Subject</button>
+    </form>
+
+    <hr>
+
+    <h2>All Subjects</h2>
+    <table border="1">
+        <tr>
+            <th>Subject Name</th>
+            <th>Description</th>
+            <th>Actions</th>
+        </tr>
+        {% for subject in subjects %}
+        <tr>
+            <td>{{subject.name}}</td>
+            <td>{{subject.description}}</td>
+            <td>
+                <form method="get" action="{{url_for('manage_chapters', subject_id=subject.id)}}" style="display:inline">
+                    <button type="submit">View</button>
+                </form>
+                <form method="get" action="{{url_for('edit_subject', subject_id=subject.id)}}" style="display:inline">
+                    <button type="submit">Edit</button>
+                </form>
+                <form method="post" action="{{url_for('delete_subject', subject_id=subject.id)}}" style="display:inline">
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <hr>
+    <a href="{{url_for('admin_dashboard')}}">Back to Dashboard</a>
+</body>
+</html>

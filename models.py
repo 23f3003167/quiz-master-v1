@@ -1,16 +1,17 @@
 from flask import Flask
+from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
     _password = db.Column(db.String(255), nullable=False)
     full_name = db.Column(db.String(100), nullable=False)
     qualification = db.Column(db.String(100), nullable=False)
-    dob = db.Column(db.Date, nullable=False)
+    dob = db.Column(db.String(10), nullable=False)
     role = db.Column(db.String(10), nullable=False)
 
     @property
@@ -25,11 +26,11 @@ class User(db.Model):
         return check_password_hash(self._password, password)
         
 
-class Admin(db.Model):
+class Admin(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
     _password = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.String(10), nullable=False)
+    role = db.Column(db.String(10), nullable=False, default="admin")
 
     @property
     def password(self):
@@ -57,6 +58,7 @@ class Chapter(db.Model):
 class Quiz(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     chapter_id = db.Column(db.Integer, db.ForeignKey('chapter.id'), nullable=False)
+    title = db.Column(db.String(100), unique=True, nullable=False)
     date_of_quiz = db.Column(db.Date)
     time_duration = db.Column(db.String(10))
     remarks = db.Column(db.Text)
