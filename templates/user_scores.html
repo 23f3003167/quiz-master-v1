@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Scores</title>
+</head>
+<body>
+    <h1>Quiz Attempts</h1>
+    <table border="1">
+        <tr>
+            <th>Quiz</th>
+            <th>Scores</th>
+            <th>Time taken</th>
+            <th>Date of Attempt</th>
+        </tr>
+        {% for score in scores %}
+        <tr>
+            <td>{{score.quiz.title}}</td>
+            <td>{{score.total_scored}}</td>
+            <td>{{score.completion_minutes}}m {{score.completion_seconds}}s</td>
+            <td>{{score.time_stamp_of_attempt.strftime('%d-%m-%Y %H:%M:%S')}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <a href="{{url_for('user_dashboard')}}">Back to Dashboard</a>
+</body>
+</html>

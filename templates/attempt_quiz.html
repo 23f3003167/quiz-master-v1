@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attempt Quiz</title>
+    <script>
+        let timeLeft = JSON.parse("{{quiz.time_duration}}")* 60;
+        function startTimer() {
+            let timerElement = document.getElementById("timer");
+            let countdown = setInterval(function (){
+                let minutes = Math.floor(timeLeft/60);
+                let seconds = timeLeft % 60 ;
+
+                let formattedminutes = minutes < 10 ? "0" + minutes : minutes;
+                let formattedseconds = seconds < 10 ? "0" + seconds : seconds;
+
+                timerElement.innerText = `Time Remaining: ${formattedminutes}:${formattedseconds}`;
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    document.getElementById("quizform").submit();
+                }
+                timeLeft--;  
+            }, 1000);
+        }
+        window.onload = startTimer;
+    </script>
+</head>
+<body>
+    <h1>{{quiz.title}}</h1>
+    <h3 id="timer">Time Remaining: {{quiz.time_duration}}:00</h3>
+
+    <form id="quizform" method="POST">
+        {% for question in questions %}
+            <p><strong>{{question.question_statement}}</strong></p>
+            <input type="radio" name="question_{{ question.id }}" value="1"> {{question.option_1}} <br>
+            <input type="radio" name="question_{{ question.id }}" value="2"> {{question.option_2}} <br>
+            <input type="radio" name="question_{{ question.id }}" value="3"> {{question.option_3}} <br>
+            <input type="radio" name="question_{{ question.id }}" value="4"> {{question.option_4}} <br>
+            <hr>
+        {% endfor %}
+        <button type="submit">Submit Quiz</button>
+    </form>
+
+    <a href="{{url_for('user_quizzes', subject_id=quiz.chapter.subject_id)}}">Back to Quizzes</a>
+</body>
+</html>

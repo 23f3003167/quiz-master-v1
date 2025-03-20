@@ -83,5 +83,7 @@ class Score(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     time_stamp_of_attempt = db.Column(db.DateTime)
     total_scored = db.Column(db.Integer)
+    completion_minutes = db.Column(db.Integer)
+    completion_seconds = db.Column(db.Integer)
     quiz = db.relationship('Quiz', backref=db.backref('scores', lazy=True))
     user = db.relationship('User', backref=db.backref('scores', lazy=True))

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Search</title>
+</head>
+<body>
+    <h1>User Search</h1>
+    <form method="POST">
+        <input type="text" name="search_term" placeholder="Enter search term" value="{{search_term}}" required>
+        <br>
+        <label><input type="checkbox" name="filter_by" value="subjects">Subjects</label>
+        <label><input type="checkbox" name="filter_by" value="quizzes">Quizzes</label>
+        <br>
+        <button type="submit">Search</button>
+    </form>
+
+    <hr>
+
+    <h2>Results</h2>
+    <ul>
+        {% for result in results %}
+            <li>
+                {% if result.__tablename__ == "subject" %}
+                    <strong>Subject:</strong> {{result.name}}
+                {% elif result.__tablename__ == "quiz" %}
+                    <strong>Quiz:</strong> {{result.title}}
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+
+    <a href="{{url_for('user_dashboard')}}">Back to Dashboard</a>
+</body>
+</html>
