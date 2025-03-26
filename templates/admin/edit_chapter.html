@@ -12,6 +12,6 @@
         <textarea name="description">{{chapter.description}}</textarea><br>
         <button type="submit">Update Chapter</button>
     </form>
-    <a href="{{url_for('manage_chapters', subject_id=chapter.subject_id)}}">Cancel</a>
+    <a href="{{url_for('admin.manage_chapters', subject_id=chapter.subject_id)}}">Cancel</a>
 </body>
 </html>

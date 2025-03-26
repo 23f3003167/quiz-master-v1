@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Search</title>
+    <title>Admin Search</title>
 </head>
 <body>
-    <h1>User Search</h1>
+    <h1>Admin Search</h1>
     <form method="POST">
         <input type="text" name="search_term" placeholder="Enter search term" value="{{search_term}}" required>
         <br>
+        <label><input type="checkbox" name="filter_by" value="users">Users</label>
         <label><input type="checkbox" name="filter_by" value="subjects">Subjects</label>
         <label><input type="checkbox" name="filter_by" value="quizzes">Quizzes</label>
+        <label><input type="checkbox" name="filter_by" value="questions">Questions</label>
         <br>
         <button type="submit">Search</button>
     </form>
@@ -22,15 +24,19 @@
     <ul>
         {% for result in results %}
             <li>
-                {% if result.__tablename__ == "subject" %}
+                {% if result.__tablename__ == "user" %}
+                    <strong>User:</strong> {{result.full_name}} {{result.username}}
+                {% elif result.__tablename__ == "subject" %}
                     <strong>Subject:</strong> {{result.name}}
                 {% elif result.__tablename__ == "quiz" %}
                     <strong>Quiz:</strong> {{result.title}}
+                {% elif result.__tablename__ == "question" %}
+                    <strong>Question:</strong> {{result.question_statement}}
                 {% endif %}
             </li>
         {% endfor %}
     </ul>
 
-    <a href="{{url_for('user_dashboard')}}">Back to Dashboard</a>
+    <a href="{{url_for('admin.admin_dashboard')}}">Back to Dashboard</a>
 </body>
 </html>
