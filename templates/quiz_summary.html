@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Summary</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h2>Your Quiz Performance</h2>
+    <canvas id="quizChart"></canvas>
+
+    <script>
+        var ctx = document.getElementById('quizChart').getContext('2d');
+        var quizChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: JSON.parse('{{ quiz_titles | tojson | safe }}'),
+                datasets: [{
+                    label: 'Quiz Scores',
+                    data: JSON.parse('{{ scores_list | tojson }}'),
+                    backgroundColor: 'blue'
+                }]
+            }
+        })
+    </script>
+
+    <a href="{{ url_for('user_dashboard') }}">Back to Dashboard</a>
+</body>
+</html>

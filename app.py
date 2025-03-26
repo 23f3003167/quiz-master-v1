@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_migrate import Migrate
 from models import db, User, Admin, Subject, Chapter, Quiz, Question, Score
-from datetime import datetime
+from datetime import datetime, date
 import pytz
 
 app = Flask(__name__)
@@ -397,7 +397,9 @@ def user_quizzes(subject_id):
         return redirect(url_for('admin_dashboard'))
     subject = Subject.query.get_or_404(subject_id)
     quizzes = Quiz.query.filter_by(chapter_id=subject.id).all()
-    return render_template('user_quizzes.html',subject=subject, quizzes=quizzes)
+    today = date.today()
+
+    return render_template('user_quizzes.html',subject=subject, quizzes=quizzes, today=today)
 
 @app.route("/user/quizzes/<int:quiz_id>/attempt",methods=['GET','POST'])
 @login_required
@@ -408,6 +410,11 @@ def attempt_quiz(quiz_id):
     quiz = Quiz.query.get_or_404(quiz_id)
     questions = Question.query.filter_by(quiz_id=quiz_id).all()
     ist = pytz.timezone('Asia/Kolkata')
+
+    today = date.today()
+    if quiz.date_of_quiz != today:
+        flash(f"This quiz is only available on {quiz.date_of_quiz.strftime('%d-%m-%Y')}", "danger")
+        return redirect(url_for("user_quizzes", subject_id=quiz.chapter.subject_id))
 
     if request.method == 'GET':
         session['quiz_start_time'] = datetime.now().isoformat()
@@ -474,6 +481,19 @@ def user_search():
             results.extend(Quiz.query.filter(Quiz.title.ilike(f"%{search_term}%")).all())
 
     return render_template("user_search.html", results=results, search_term=search_term)
+
+@app.route("/user/quiz-summary", methods=['GET'])
+@login_required
+def quiz_summary():
+    if current_user.role != "user":
+        return redirect(url_for("admin_dashboard"))
+    
+    scores = Score.query.filter_by(user_id=current_user.id).all()
+
+    quiz_titles = [s.quiz.title for s in scores]
+    scores_list = [s.total_scored for s in scores]
+
+    return render_template("quiz_summary.html", quiz_titles=quiz_titles, scores_list=scores_list)
 
 if __name__=="__main__":
     with app.app_context():
