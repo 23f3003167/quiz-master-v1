@@ -3,6 +3,7 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from flask_migrate import Migrate
 from models import db, User, Admin, Subject, Chapter, Quiz, Question, Score
 from datetime import datetime, date
+from functools import wraps
 import pytz
 
 app = Flask(__name__)
@@ -32,9 +33,18 @@ def register():
         password = request.form['password']
         qualification = request.form['qualification']
         dob = request.form['dob']
+
+        if not email or not full_name or not password or not qualification or not dob:
+            flash("All fields are required!", "danger")
+            return redirect(url_for('register'))
+        
+        if len(password) < 6:
+            flash("Password must be atleast 6 characters long", "danger")
+            return redirect(url_for('register'))
         
         existing_user = User.query.filter_by(username=email).first()
         if existing_user:
+            flash("You are Already Registered", "danger")
             return redirect(url_for('login'))
         
         new_user = User(
@@ -91,20 +101,25 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if current_user.role != "admin":
+            flash("Unauthorized access!", "danger")
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
 @app.route("/admin/dashboard", methods=['GET', 'POST'])
 @login_required
+@admin_required
 def admin_dashboard():
-    print(current_user.role)
-    if current_user.role != "admin":
-        return redirect(url_for('login'))
     return render_template('admin_dashboard.html')
 
 @app.route("/admin/subjects", methods=['GET', 'POST'])
 @login_required
+@admin_required
 def manage_subjects():
-    if current_user.role != "admin":
-        return redirect(url_for("user_dashboard"))
-    
     if request.method == 'POST':
         name = request.form['name']
         description = request.form['description']
@@ -123,9 +138,8 @@ def manage_subjects():
 
 @app.route("/admin/subjects/edit/<int:subject_id>", methods=["GET","POST"])
 @login_required
+@admin_required
 def edit_subject(subject_id):
-    if current_user.role != "admin":
-        return redirect(url_for("user_dashboard"))
     
     subject = Subject.query.get_or_404(subject_id)
 
@@ -140,9 +154,8 @@ def edit_subject(subject_id):
 
 @app.route("/admin/subjects/delete/<int:subject_id>", methods=["POST"])
 @login_required
+@admin_required
 def delete_subject(subject_id):
-    if current_user.role != "admin":
-        return redirect(url_for("user_dashboard"))
     
     subject = Subject.query.get_or_404(subject_id)
     
@@ -153,9 +166,8 @@ def delete_subject(subject_id):
 
 @app.route("/admin/subjects/<int:subject_id>/chapters", methods=["GET","POST"])
 @login_required
+@admin_required
 def manage_chapters(subject_id):
-    if current_user.role != "admin":
-        return redirect(url_for("user_dashboard"))
     
     subject = Subject.query.get_or_404(subject_id)
 
@@ -178,9 +190,8 @@ def manage_chapters(subject_id):
 
 @app.route("/admin/chapters/edit/<int:chapter_id>", methods=["GET","POST"])
 @login_required
+@admin_required
 def edit_chapter(chapter_id):
-    if current_user.role != "admin":
-        return redirect(url_for("user_dashboard"))
     
     chapter = Chapter.query.get_or_404(chapter_id)
 
@@ -195,9 +206,8 @@ def edit_chapter(chapter_id):
 
 @app.route("/admin/chapters/delete/<int:chapter_id>", methods=["POST"])
 @login_required
+@admin_required
 def delete_chapter(chapter_id):
-    if current_user.role != "admin":
-        return redirect(url_for("user_dashboard"))
     
     chapter = Chapter.query.get_or_404(chapter_id)
     subject_id = chapter.subject_id
@@ -208,9 +218,8 @@ def delete_chapter(chapter_id):
 
 @app.route("/admin/chapters/<int:chapter_id>/quizzes", methods=["GET","POST"])
 @login_required
+@admin_required
 def manage_quizzes(chapter_id):
-    if current_user.role != "admin":
-        return redirect(url_for("user_dashboard"))
     
     chapter = Chapter.query.get_or_404(chapter_id)
     
@@ -243,9 +252,8 @@ def manage_quizzes(chapter_id):
 
 @app.route("/admin/quizzes/edit/<int:quiz_id>", methods=["GET","POST"])
 @login_required
+@admin_required
 def edit_quiz(quiz_id):
-    if current_user.role != "admin":
-        return redirect(url_for("user_dashboard"))
     
     quiz = Quiz.query.get_or_404(quiz_id)
 
@@ -262,9 +270,8 @@ def edit_quiz(quiz_id):
 
 @app.route("/admin/quizzes/delete/<int:quiz_id>", methods=["POST"])
 @login_required
+@admin_required
 def delete_quiz(quiz_id):
-    if current_user.role != "admin":
-        return redirect(url_for("user_dashboard"))
     
     quiz = Quiz.query.get_or_404(quiz_id)
 
@@ -276,9 +283,8 @@ def delete_quiz(quiz_id):
 
 @app.route("/admin/quizzes/<int:quiz_id>/questions", methods=["GET","POST"])
 @login_required
+@admin_required
 def manage_questions(quiz_id):
-    if current_user.role != "admin":
-        return redirect(url_for("user_dashboard"))
     
     quiz = Quiz.query.get_or_404(quiz_id)
 
@@ -310,9 +316,8 @@ def manage_questions(quiz_id):
 
 @app.route("/admin/questions/edit/<int:question_id>", methods=["GET", "POST"])
 @login_required
+@admin_required
 def edit_question(question_id):
-    if current_user.role != "admin":
-        return redirect(url_for("user_dashboard"))
     
     question = Question.query.get_or_404(question_id)
 
@@ -331,9 +336,8 @@ def edit_question(question_id):
 
 @app.route("/admin/questions/delete/<int:question_id>", methods=["POST"])
 @login_required
+@admin_required
 def delete_question(question_id):
-    if current_user.role != "admin":
-        return redirect(url_for("user_dashboard"))
     
     question = Question.query.get_or_404(question_id)
     quiz_id = question.quiz_id
@@ -344,18 +348,15 @@ def delete_question(question_id):
 
 @app.route("/admin/users", methods=['GET'])
 @login_required
+@admin_required
 def view_users():
-    if current_user.role != "admin":
-        return redirect(url_for("user_dashboard"))
-    
     users = User.query.all()
     return render_template("admin_users.html", users=users)
 
 @app.route("/admin/search", methods=['GET','POST'])
 @login_required
+@admin_required
 def admin_search():
-    if current_user.role != "admin":
-        return redirect(url_for("user_dashboard"))
     
     results = []
     search_term = request.form.get("search_term","").strip()
