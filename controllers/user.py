@@ -101,7 +101,7 @@ def attempt_quiz(quiz_id):
 def view_scores():
     
     scores = Score.query.filter_by(user_id=current_user.id).order_by(Score.time_stamp_of_attempt.desc()).all()
-    return render_template("user_scores.html", scores=scores)
+    return render_template("user/user_scores.html", scores=scores)
 
 @user.route("/user/search", methods=['GET','POST'])
 @login_required

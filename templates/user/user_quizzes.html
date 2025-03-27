@@ -21,7 +21,7 @@
             <td>{{quiz.date_of_quiz}}</td>
             <td>
                 {% if quiz.date_of_quiz == today %}
-                    <form method="get" action="{{url_for('attempt_quiz', quiz_id=quiz.id)}}" style="display:inline">
+                    <form method="get" action="{{url_for('user.attempt_quiz', quiz_id=quiz.id)}}" style="display:inline">
                         <button type="submit">Attempt</button>
                     </form>
                 {% elif quiz.date_of_quiz > today %}

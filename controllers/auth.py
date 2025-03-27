@@ -65,7 +65,6 @@ def login():
         user = User.query.filter_by(username=email).first()
         if user and user.check_password(password):
             login_user(user)
-            print(current_user)
             session['is_admin'] = False
             return redirect(url_for('user.user_dashboard'))
         flash("Invalid Credentials", "danger")

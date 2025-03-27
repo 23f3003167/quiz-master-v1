@@ -6,3 +6,12 @@
     border-radius: 5px;
     margin-block-end: 10px;
 }
+
+.success {
+    color: green;
+    background-color: #d4edda;
+    padding: 10px;
+    border: 1px solid green;
+    border-radius: 5px;
+    margin-block-end: 10px;
+}

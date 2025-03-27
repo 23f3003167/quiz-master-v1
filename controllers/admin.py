@@ -19,7 +19,22 @@ def admin_required(f):
 @login_required
 @admin_required
 def admin_dashboard():
-    return render_template('admin/admin_dashboard.html')
+    subjects = Subject.query.all()
+    subject_data = []
+
+    for subject in subjects:
+        chapters = Chapter.query.filter_by(subject_id=subject.id).all()
+        chapter_data = [
+            {
+                 "id": chapter.id,
+                "name": chapter.name,
+                "quiz_count": Quiz.query.filter_by(chapter_id=chapter.id).count()
+            }
+            for chapter in chapters
+        ]
+        subject_data.append({"id": subject.id, "name": subject.name, "chapters": chapter_data})
+
+    return render_template('admin/admin_dashboard.html', subject_data=subject_data)
 
 @admin.route("/admin/subjects", methods=['GET', 'POST'])
 @login_required
@@ -63,11 +78,18 @@ def edit_subject(subject_id):
 def delete_subject(subject_id):
     
     subject = Subject.query.get_or_404(subject_id)
+
+    Chapter.query.filter_by(subject_id=subject_id).delete()
     
     db.session.delete(subject)
     db.session.commit()
     flash("Deleted Successfully!", "success")
     return redirect(url_for("admin.manage_subjects"))
+
+@admin.route('/admin/manage_chapters/<int:chapter_id>')
+def manage_chapter(chapter_id):
+    chapter = Chapter.query.get_or_404(chapter_id)
+    return render_template('manage_chapters.html', chapter=chapter)
 
 @admin.route("/admin/subjects/<int:subject_id>/chapters", methods=["GET","POST"])
 @login_required
@@ -217,7 +239,7 @@ def manage_questions(quiz_id):
         return redirect(url_for("admin.manage_questions", quiz_id=quiz_id))
     
     questions = Question.query.filter_by(quiz_id=quiz_id).all()
-    return render_template("admin_questions.html", quiz=quiz, questions=questions)
+    return render_template("admin/admin_questions.html", quiz=quiz, questions=questions)
 
 @admin.route("/admin/questions/edit/<int:question_id>", methods=["GET", "POST"])
 @login_required
@@ -256,7 +278,7 @@ def delete_question(question_id):
 @admin_required
 def view_users():
     users = User.query.all()
-    return render_template("admin_users.html", users=users)
+    return render_template("admin/admin_users.html", users=users)
 
 @admin.route("/admin/search", methods=['GET','POST'])
 @login_required

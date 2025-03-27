@@ -1,4 +1,4 @@
-from flask import Flask, session
+from flask import Flask, session, redirect, url_for
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from models import db, User, Admin
@@ -28,6 +28,10 @@ def load_user(user_id):
 app.register_blueprint(auth)
 app.register_blueprint(admin)
 app.register_blueprint(user)
+
+@app.route("/")
+def index():
+    return redirect(url_for("auth.login"))
 
 if __name__=="__main__":
     with app.app_context():

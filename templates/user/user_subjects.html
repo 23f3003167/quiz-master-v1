@@ -16,7 +16,7 @@
         <tr>
             <td>{{subject.name}}</td>
             <td>
-                <form method="get" action="{{url_for('user_quizzes', subject_id=subject.id)}}" style="display:inline">
+                <form method="get" action="{{url_for('user.user_quizzes', subject_id=subject.id)}}" style="display:inline">
                     <button type="submit">View Quizzes</button>
                 </form>
             </td>
@@ -24,6 +24,6 @@
         {% endfor %}
     </table>
     <hr>
-    <a href="{{url_for('user.admin_dashboard')}}">Back to Dashboard</a>
+    <a href="{{url_for('user.user_dashboard')}}">Back to Dashboard</a>
 </body>
 </html>
