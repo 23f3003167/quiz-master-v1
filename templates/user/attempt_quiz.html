@@ -58,7 +58,7 @@
                 {% endfor %}
                 
                 <div class="d-flex justify-content-between">
-                    <a href="{{ url_for('user.user_quizzes', subject_id=quiz.chapter.subject_id) }}" class="btn btn-secondary">Back to Quizzes</a>
+                    <a href="{{ url_for('user.user_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
                     <button type="submit" class="btn btn-success">Submit Quiz</button>
                 </div>
             </form>

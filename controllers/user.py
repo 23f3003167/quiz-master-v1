@@ -7,18 +7,8 @@ from functools import wraps
 
 user = Blueprint("user", __name__)
 
-def user_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if current_user.role != "user":
-            flash("Unauthorized access!", "danger")
-            return redirect(url_for('auth.login'))
-        return f(*args, **kwargs)
-    return decorated_function
-
 @user.route("/user/dashboard", methods=['GET', 'POST'])
 @login_required
-@user_required
 def user_dashboard():
     quizzes = Quiz.query.join(Chapter).join(Subject).all()
     today = date.today()
@@ -27,7 +17,7 @@ def user_dashboard():
 
 # @user.route("/user/subjects", methods=['GET'])
 # @login_required
-# @user_required
+# #@user_required
 # def user_subjects():
     
 #     subjects = Subject.query.all()
@@ -35,7 +25,7 @@ def user_dashboard():
 
 # @user.route("/user/subjects/<int:subject_id>/quizzes", methods=['GET'])
 # @login_required
-# @user_required
+# #@user_required
 # def user_quizzes(subject_id):
     
 #     subject = Subject.query.get_or_404(subject_id)
@@ -46,7 +36,6 @@ def user_dashboard():
 
 @user.route("/user/quizzes/<int:quiz_id>/attempt",methods=['GET','POST'])
 @login_required
-@user_required
 def attempt_quiz(quiz_id):
     
     
@@ -95,7 +84,6 @@ def attempt_quiz(quiz_id):
 
 @user.route("/user/scores", methods=['GET'])
 @login_required
-@user_required
 def view_scores():
     
     scores = Score.query.filter_by(user_id=current_user.id).order_by(Score.time_stamp_of_attempt.desc()).all()
@@ -105,7 +93,7 @@ def view_scores():
 
 @user.route("/user/search", methods=['GET','POST'])
 @login_required
-@user_required
+#@user_required
 def user_search():
     
     results = []
@@ -122,7 +110,7 @@ def user_search():
 
 @user.route("/user/quiz-summary", methods=['GET'])
 @login_required
-@user_required
+#@user_required
 def quiz_summary():
     
     scores = Score.query.filter_by(user_id=current_user.id).all()

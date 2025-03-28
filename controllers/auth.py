@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from flask_login import login_user, logout_user, login_required, current_user
-from models import db, User, Admin
+from flask_login import login_user, logout_user, login_required
+from models import db, User
 
 auth = Blueprint("auth", __name__)
     
@@ -12,10 +12,6 @@ def register():
         password = request.form['password']
         qualification = request.form['qualification']
         dob = request.form['dob']
-
-        if not email or not full_name or not password or not qualification or not dob:
-            flash("All fields are required!", "danger")
-            return redirect(url_for('auth.register'))
         
         if len(password) < 6:
             flash("Password must be atleast 6 characters long", "danger")
@@ -37,7 +33,7 @@ def register():
         new_user.password = password
         db.session.add(new_user)
         db.session.commit()
-
+        flash("Registered Successfully", "success")
         return redirect(url_for('auth.login'))
     
     return render_template('auth/register.html')
@@ -51,22 +47,16 @@ def login():
         
         session.clear()
     
-        if role.lower() == 'admin':
-            admin = Admin.query.filter_by(username=email).first()
-            if admin and admin.check_password(password):
-                login_user(admin)
-                print(current_user)
-                session['is_admin'] = True
-                return redirect(url_for('admin.admin_dashboard'))
-            else:
-                flash("Invalid Credentials", "danger")
-                return redirect(url_for('auth.login'))
-            
-        user = User.query.filter_by(username=email).first()
+        user = User.query.filter_by(username=email, role=role.lower()).first()
         if user and user.check_password(password):
             login_user(user)
-            session['is_admin'] = False
-            return redirect(url_for('user.user_dashboard'))
+            session['is_admin'] = user.role == 'admin'
+            
+            if user.role == 'admin':
+                return redirect(url_for('admin.admin_dashboard'))
+            else:
+                return redirect(url_for('user.user_dashboard'))
+            
         flash("Invalid Credentials", "danger")
         return redirect(url_for('auth.login'))
     
@@ -77,4 +67,5 @@ def login():
 def logout():
     logout_user()
     session.clear()
+    flash("Logged out successfully", "success")
     return redirect(url_for('auth.login'))

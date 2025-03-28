@@ -1,7 +1,7 @@
 from flask import Flask, session, redirect, url_for
 from flask_login import LoginManager
 from flask_migrate import Migrate
-from models import db, User, Admin
+from models import db, User
 from controllers.auth import auth
 from controllers.admin import admin
 from controllers.user import user
@@ -21,9 +21,7 @@ login_manager.login_view = "auth.login"
 
 @login_manager.user_loader
 def load_user(user_id):
-    if 'is_admin' in session and session['is_admin']:
-        return db.session.get(Admin, int(user_id))
-    return db.session.get(User, int(user_id))
+    return User.query.get(int(user_id))
 
 app.register_blueprint(auth)
 app.register_blueprint(admin)
@@ -36,8 +34,8 @@ def index():
 if __name__=="__main__":
     with app.app_context():
         db.create_all()
-        if not Admin.query.first():
-            admin = Admin(username="admin@gmail.com", role="admin")
+        if not User.query.filter_by(role="admin").first():
+            admin = User(username="admin@gmail.com", role="admin", full_name="Admin", qualification="Educator", dob="1999-01-01")
             admin.password = "admin@2005"
             db.session.add(admin)
             db.session.commit()

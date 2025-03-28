@@ -12,42 +12,62 @@ class User(UserMixin, db.Model):
     full_name = db.Column(db.String(100), nullable=False)
     qualification = db.Column(db.String(100), nullable=False)
     dob = db.Column(db.String(10), nullable=False)
-    role = db.Column(db.String(10), nullable=False)
+    role = db.Column(db.String(10), nullable=False, default="user")
 
     @property
     def password(self):
         raise AttributeError("Password is not readable")
-    
+
     @password.setter
     def password(self, password):
         self._password = generate_password_hash(password)
 
     def check_password(self, password):
         return check_password_hash(self._password, password)
+
+# class User(UserMixin, db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     username = db.Column(db.String(100), unique=True, nullable=False, index=True)
+#     _password = db.Column(db.String(255), nullable=False)
+#     full_name = db.Column(db.String(100), nullable=False)
+#     qualification = db.Column(db.String(100), nullable=False)
+#     dob = db.Column(db.String(10), nullable=False)
+#     role = db.Column(db.String(10), nullable=False)
+
+#     @property
+#     def password(self):
+#         raise AttributeError("Password is not readable")
+    
+#     @password.setter
+#     def password(self, password):
+#         self._password = generate_password_hash(password)
+
+#     def check_password(self, password):
+#         return check_password_hash(self._password, password)
         
 
-class Admin(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(100), unique=True, nullable=False, index=True)
-    _password = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.String(10), nullable=False, default="admin")
+# class Admin(UserMixin, db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     username = db.Column(db.String(100), unique=True, nullable=False, index=True)
+#     _password = db.Column(db.String(255), nullable=False)
+#     role = db.Column(db.String(10), nullable=False, default="admin")
 
-    @property
-    def password(self):
-        raise AttributeError("Password is not readable")
+#     @property
+#     def password(self):
+#         raise AttributeError("Password is not readable")
     
-    @password.setter
-    def password(self, password):
-        self._password = generate_password_hash(password)
+#     @password.setter
+#     def password(self, password):
+#         self._password = generate_password_hash(password)
 
-    def check_password(self, password):
-        return check_password_hash(self._password, password)
+#     def check_password(self, password):
+#         return check_password_hash(self._password, password)
 
 class Subject(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True,  nullable=False, index=True)
     description = db.Column(db.Text)
-
+ 
 class Chapter(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     subject_id = db.Column(db.Integer, db.ForeignKey('subject.id', ondelete="CASCADE"), nullable=False, index=True)

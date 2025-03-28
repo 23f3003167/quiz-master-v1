@@ -24,6 +24,15 @@
         <h1 class="mb-4 text-center">Manage Subjects</h1>
 
         <h2 class="mb-3">All Subjects</h2>
+        {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category  }} text-center">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
         <div class="row">
             {% for subject in subjects %}
             <div class="col-md-6 mb-4">
