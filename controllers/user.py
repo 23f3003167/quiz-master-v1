@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from flask_login import login_required, current_user
-from models import db, Subject, Quiz, Question, Score
+from models import db, Subject, Chapter, Quiz, Question, Score
 from datetime import datetime, date
 import pytz
 from functools import wraps
@@ -20,26 +20,29 @@ def user_required(f):
 @login_required
 @user_required
 def user_dashboard():
-    return render_template('user/user_dashboard.html')
-
-@user.route("/user/subjects", methods=['GET'])
-@login_required
-@user_required
-def user_subjects():
-    
-    subjects = Subject.query.all()
-    return render_template('user/user_subjects.html', subjects=subjects)
-
-@user.route("/user/subjects/<int:subject_id>/quizzes", methods=['GET'])
-@login_required
-@user_required
-def user_quizzes(subject_id):
-    
-    subject = Subject.query.get_or_404(subject_id)
-    quizzes = Quiz.query.filter_by(chapter_id=subject.id).all()
+    quizzes = Quiz.query.join(Chapter).join(Subject).all()
     today = date.today()
+    quiz_question_count = {quiz.id: Question.query.filter_by(quiz_id=quiz.id).count() for quiz in quizzes}
+    return render_template('user/user_dashboard.html', quizzes=quizzes, quiz_question_count=quiz_question_count, today=today)
 
-    return render_template('user/user_quizzes.html',subject=subject, quizzes=quizzes, today=today)
+# @user.route("/user/subjects", methods=['GET'])
+# @login_required
+# @user_required
+# def user_subjects():
+    
+#     subjects = Subject.query.all()
+#     return render_template('user/user_subjects.html', subjects=subjects)
+
+# @user.route("/user/subjects/<int:subject_id>/quizzes", methods=['GET'])
+# @login_required
+# @user_required
+# def user_quizzes(subject_id):
+    
+#     subject = Subject.query.get_or_404(subject_id)
+#     quizzes = Quiz.query.filter_by(chapter_id=subject.id).all()
+#     today = date.today()
+
+#     return render_template('user/user_quizzes.html',subject=subject, quizzes=quizzes, today=today)
 
 @user.route("/user/quizzes/<int:quiz_id>/attempt",methods=['GET','POST'])
 @login_required
@@ -50,11 +53,6 @@ def attempt_quiz(quiz_id):
     quiz = Quiz.query.get_or_404(quiz_id)
     questions = Question.query.filter_by(quiz_id=quiz_id).all()
     ist = pytz.timezone('Asia/Kolkata')
-
-    today = date.today()
-    if quiz.date_of_quiz != today:
-        flash(f"This quiz is only available on {quiz.date_of_quiz.strftime('%d-%m-%Y')}", "danger")
-        return redirect(url_for("user_quizzes", subject_id=quiz.chapter.subject_id))
 
     if request.method == 'GET':
         session['quiz_start_time'] = datetime.now().isoformat()
@@ -91,7 +89,7 @@ def attempt_quiz(quiz_id):
         db.session.commit()
 
         flash(f'Quiz Completed! Your Score: {score}/{len(questions)} in {minutes} minutes {seconds} seconds', "success")
-        return redirect(url_for('user_dashboard'))
+        return redirect(url_for('user.user_dashboard'))
     
     return render_template('user/attempt_quiz.html', quiz=quiz, questions=questions)
 
@@ -101,7 +99,9 @@ def attempt_quiz(quiz_id):
 def view_scores():
     
     scores = Score.query.filter_by(user_id=current_user.id).order_by(Score.time_stamp_of_attempt.desc()).all()
-    return render_template("user/user_scores.html", scores=scores)
+    quizzes = Quiz.query.all()
+    quiz_question_count = {quiz.id: Question.query.filter_by(quiz_id=quiz.id).count() for quiz in quizzes}
+    return render_template("user/user_scores.html", scores=scores, quiz_question_count=quiz_question_count)
 
 @user.route("/user/search", methods=['GET','POST'])
 @login_required
@@ -127,7 +127,15 @@ def quiz_summary():
     
     scores = Score.query.filter_by(user_id=current_user.id).all()
 
-    quiz_titles = [s.quiz.title for s in scores]
-    scores_list = [s.total_scored for s in scores]
+    highest_scores = {}
+    for score in scores:
+        quiz_title = score.quiz.title
+        if quiz_title in highest_scores:
+            highest_scores[quiz_title] = max(highest_scores[quiz_title], score.total_scored)
+        else:
+            highest_scores[quiz_title] = score.total_scored
+
+    quiz_titles = list(highest_scores.keys())
+    scores_list = list(highest_scores.values())
 
     return render_template("user/quiz_summary.html", quiz_titles=quiz_titles, scores_list=scores_list)

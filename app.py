@@ -22,8 +22,8 @@ login_manager.login_view = "auth.login"
 @login_manager.user_loader
 def load_user(user_id):
     if 'is_admin' in session and session['is_admin']:
-        return Admin.query.get(int(user_id))
-    return User.query.get(int(user_id))
+        return db.session.get(Admin, int(user_id))
+    return db.session.get(User, int(user_id))
 
 app.register_blueprint(auth)
 app.register_blueprint(admin)
