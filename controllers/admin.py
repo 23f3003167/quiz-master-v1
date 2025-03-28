@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
-from models import db, User, Subject, Chapter, Quiz, Question
+from models import db, User, Subject, Chapter, Quiz, Question, Score
 from datetime import datetime
 from functools import wraps
 
@@ -300,3 +300,27 @@ def admin_search():
             results.extend(Question.query.filter(Question.question_statement.ilike(f"%{search_term}%")).all())
 
     return render_template("admin/admin_search.html", results=results, search_term=search_term)
+
+@admin.route("/admin/quiz-summary", methods=['GET'])
+@login_required
+@admin_required
+def quiz_summary():
+    subjects = Subject.query.all()
+    top_scores = {}
+    for subject in subjects:
+        highest_score = (
+            db.session.query(User.full_name, Score.total_scored)
+            .join(Score) 
+            .join(Quiz, Score.quiz_id == Quiz.id)
+            .join(Chapter, Quiz.chapter_id == Chapter.id) 
+            .join(Subject, Chapter.subject_id == Subject.id)
+            .filter(Subject.id == subject.id)
+            .order_by(Score.total_scored.desc())
+            .first()
+        )
+        if highest_score:
+            top_scores[subject.name]={
+                "user": highest_score[0],
+                "score": highest_score[1]
+            }
+    return render_template("admin/quiz_summary.html", top_scores=top_scores)

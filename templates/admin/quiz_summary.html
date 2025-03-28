@@ -10,41 +10,43 @@
 <body class="p-4">
     <nav class="navbar navbar-light bg-light p-2 d-flex justify-content-between">
         <div>
-            <a href="{{url_for('user.user_dashboard')}}" class="me-3">Home</a>
-            <a href="{{url_for('user.view_scores')}}" class="me-3">Scores</a>
-            <a href="{{url_for('user.quiz_summary')}}" class="me-3">Summary</a>
+            <a href="{{url_for('admin.admin_dashboard')}}" class="me-3">Home</a>
+            <a href="{{url_for('admin.view_users')}}" class="me-3">Users</a>
+            <a href="{{url_for('admin.quiz_summary')}}" class="me-3">Summary</a>
             <a href="{{ url_for('auth.logout')}}" class="text-danger">Logout</a>
         </div>
-        <form action="{{ url_for('user.user_search')}}" method="GET" class="d-flex">
+        <form action="{{ url_for('admin.admin_search')}}" method="GET" class="d-flex">
             <button type="submit" class="btn btn-primary">Search</button>
         </form>
     </nav>
 
     <div class="container mt-5">
         <div class="card shadow p-4">
-            <h2 class="text-center text-primary">Your Quiz Performance</h2>
-            
+            <h2 class="text-center text-primary">Subject-wise Top Scores</h2>
+
             <div class="chart-container" style="position: relative; block-size: 300px; inline-size: 100%;">
-                <canvas id="quizChart"></canvas>
+                <canvas id="topScoresChart"></canvas>
             </div>
 
             <div class="text-center mt-3">
-                <a href="{{ url_for('user.user_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+                <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
             </div>
         </div>
     </div>
 
     <script>
-        var ctx = document.getElementById('quizChart').getContext('2d');
-        var quizChart = new Chart(ctx, {
-            type: 'bar',
+        let users = JSON.parse('{{ top_scores.values() | map(attribute="user") | list | tojson | safe }}');
+
+        var ctx = document.getElementById("topScoresChart").getContext("2d");
+        var topScoresChart = new Chart(ctx, {
+            type: "bar",
             data: {
-                labels: JSON.parse('{{ quiz_titles | tojson | safe }}'),
+                labels: JSON.parse('{{ top_scores.keys() | list | tojson | safe }}'),
                 datasets: [{
-                    label: 'Quiz Scores',
-                    data: JSON.parse('{{ scores_list | tojson | safe }}'),
-                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
+                    label: "Top Scores",
+                    data: JSON.parse('{{ top_scores.values() | map(attribute="score") | list | tojson | safe }}'),
+                    backgroundColor: "rgba(54, 162, 235, 0.6)",
+                    borderColor: "rgba(54, 162, 235, 1)",
                     borderinlinesize: 1
                 }]
             },
@@ -65,17 +67,25 @@
                         x: {
                             title: {
                                 display: true,
-                                text: "Quiz Titles"
+                                text: "Subjects"
                             }
                         }
                     },
                 plugins: {
                     legend: {
                             display: false
+                        },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return `${users[tooltipItem.dataIndex]} - ${tooltipItem.raw}`;
+                            }
                         }
+                    }
                 }
-        }
-    });
+            }
+        });
     </script>
+    
 </body>
 </html>

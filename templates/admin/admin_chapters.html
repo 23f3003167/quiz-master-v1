@@ -12,7 +12,7 @@
         <div>
             <a href="{{url_for('admin.admin_dashboard')}}" class="me-3">Home</a>
             <a href="{{url_for('admin.view_users')}}" class="me-3">Users</a>
-            <a href="#" class="me-3">Summary</a>
+            <a href="{{url_for('admin.quiz_summary')}}" class="me-3">Summary</a>
             <a href="{{ url_for('auth.logout')}}" class="text-danger">Logout</a>
         </div>
         <form action="{{ url_for('admin.admin_search')}}" method="GET" class="d-flex">
