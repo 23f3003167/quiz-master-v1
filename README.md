@@ -36,4 +36,7 @@ These commands initializes the database and applies migrations.
 
 `python app.py` - This will initialise the flask app. Imports database models and sets home route to the login page. A New database file will be created with predefined Admin Credentials (if not already created). 
 
-`flask run` - to start the development server as it automatically detects the Flask app. **(set FLASK_ENV=development - Any changes in the code reflects immediately)**
+`flask run` - to start the development server as it automatically detects the Flask app. 
+
+**(`set FLASK_ENV=development` / `set FLASK_DEBUG=1` - Any changes in the code reflects immediately)**
+
