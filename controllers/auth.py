@@ -47,7 +47,7 @@ def login():
         
         session.clear()
     
-        user = User.query.filter_by(username=email, role=role.lower()).first()
+        user = User.query.filter_by(username=email, role=role).first()
         if user and user.check_password(password):
             login_user(user)
             session['is_admin'] = user.role == 'admin'

@@ -23,7 +23,7 @@
         <div card="card shadow p-4">
             <h1 class="text-center text-primary">Admin Search</h1>
 
-            <form method="POST" class="mb-3">
+            <form method="post" class="mb-3">
                 <div class="input-group mb-3">
                     <input type="text" name="search_term" class="form-control" placeholder="Enter search term" value="{{ search_term }}" required>
                     <button type="submit" class="btn btn-primary">Search</button>
@@ -71,7 +71,7 @@
             {% endif %}
 
             <div class="text-center mt-3">
-                <a href="{{ url_for('user.user_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+                <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
             </div>
         </div>
     </div>

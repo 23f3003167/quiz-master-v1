@@ -1,4 +1,4 @@
-from flask import Flask, session, redirect, url_for
+from flask import Flask, redirect, url_for
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from models import db, User

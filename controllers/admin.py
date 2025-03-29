@@ -2,21 +2,11 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required
 from models import db, User, Subject, Chapter, Quiz, Question, Score
 from datetime import datetime
-from functools import wraps
 
 admin = Blueprint("admin", __name__)
 
-# def admin_required(f):
-#     @wraps(f)
-#     def decorated_function(*args, **kwargs):
-#         if current_user.role != "admin":
-#             return redirect(url_for('auth.login'))
-#         return f(*args, **kwargs)
-#     return decorated_function
-
 @admin.route("/admin/dashboard", methods=['GET', 'POST'])
 @login_required
-# #@admin_required
 def admin_dashboard():
     subjects = Subject.query.all()
     subject_data = []
@@ -37,7 +27,6 @@ def admin_dashboard():
 
 @admin.route("/admin/subjects", methods=['GET', 'POST'])
 @login_required
-#@admin_required
 def manage_subjects():
     if request.method == 'POST':
         name = request.form['name']
@@ -46,7 +35,6 @@ def manage_subjects():
         existing_subject = Subject.query.filter_by(name=name).first()
         if existing_subject:
             flash("Subject already exists!", "danger")
-            print("Already exists")
             return redirect(url_for("admin.manage_subjects"))
         
         db.session.add(Subject(name=name, description=description))
@@ -58,7 +46,6 @@ def manage_subjects():
 
 @admin.route("/admin/subjects/edit/<int:subject_id>", methods=["GET","POST"])
 @login_required
-#@admin_required
 def edit_subject(subject_id):
     
     subject = Subject.query.get_or_404(subject_id)
@@ -74,7 +61,6 @@ def edit_subject(subject_id):
 
 @admin.route("/admin/subjects/delete/<int:subject_id>", methods=["POST"])
 @login_required
-#@admin_required
 def delete_subject(subject_id):
     
     subject = Subject.query.get_or_404(subject_id)
@@ -93,7 +79,6 @@ def manage_chapter(chapter_id):
 
 @admin.route("/admin/subjects/<int:subject_id>/chapters", methods=["GET","POST"])
 @login_required
-#@admin_required
 def manage_chapters(subject_id):
     
     subject = Subject.query.get_or_404(subject_id)
@@ -117,7 +102,6 @@ def manage_chapters(subject_id):
 
 @admin.route("/admin/chapters/edit/<int:chapter_id>", methods=["GET","POST"])
 @login_required
-#@admin_required
 def edit_chapter(chapter_id):
     
     chapter = Chapter.query.get_or_404(chapter_id)
@@ -133,7 +117,6 @@ def edit_chapter(chapter_id):
 
 @admin.route("/admin/chapters/delete/<int:chapter_id>", methods=["POST"])
 @login_required
-#@admin_required
 def delete_chapter(chapter_id):
     
     chapter = Chapter.query.get_or_404(chapter_id)
@@ -145,7 +128,6 @@ def delete_chapter(chapter_id):
 
 @admin.route("/admin/chapters/<int:chapter_id>/quizzes", methods=["GET","POST"])
 @login_required
-#@admin_required
 def manage_quizzes(chapter_id):
     
     chapter = Chapter.query.get_or_404(chapter_id)
@@ -170,7 +152,6 @@ def manage_quizzes(chapter_id):
         )
         db.session.add(new_quiz)
         db.session.commit()
-        print("Success")
         flash("Quiz added Successfully!", "success")
         return redirect(url_for("admin.manage_quizzes", chapter_id=chapter_id))
     
@@ -179,7 +160,6 @@ def manage_quizzes(chapter_id):
 
 @admin.route("/admin/quizzes/edit/<int:quiz_id>", methods=["GET","POST"])
 @login_required
-#@admin_required
 def edit_quiz(quiz_id):
     
     quiz = Quiz.query.get_or_404(quiz_id)
@@ -197,7 +177,6 @@ def edit_quiz(quiz_id):
 
 @admin.route("/admin/quizzes/delete/<int:quiz_id>", methods=["POST"])
 @login_required
-#@admin_required
 def delete_quiz(quiz_id):
     
     quiz = Quiz.query.get_or_404(quiz_id)
@@ -210,7 +189,6 @@ def delete_quiz(quiz_id):
 
 @admin.route("/admin/quizzes/<int:quiz_id>/questions", methods=["GET","POST"])
 @login_required
-#@admin_required
 def manage_questions(quiz_id):
     
     quiz = Quiz.query.get_or_404(quiz_id)
@@ -243,7 +221,6 @@ def manage_questions(quiz_id):
 
 @admin.route("/admin/questions/edit/<int:question_id>", methods=["GET", "POST"])
 @login_required
-#@admin_required
 def edit_question(question_id):
     
     question = Question.query.get_or_404(question_id)
@@ -263,7 +240,6 @@ def edit_question(question_id):
 
 @admin.route("/admin/questions/delete/<int:question_id>", methods=["POST"])
 @login_required
-#@admin_required
 def delete_question(question_id):
     
     question = Question.query.get_or_404(question_id)
@@ -273,16 +249,8 @@ def delete_question(question_id):
     flash("Deleted Successfully", "success")
     return redirect(url_for("admin.manage_questions", quiz_id=quiz_id))
 
-@admin.route("/admin/users", methods=['GET'])
-@login_required
-#@admin_required
-def view_users():
-    users = User.query.all()
-    return render_template("admin/admin_users.html", users=users)
-
 @admin.route("/admin/search", methods=['GET','POST'])
 @login_required
-#@admin_required
 def admin_search():
     
     results = []
@@ -301,9 +269,14 @@ def admin_search():
 
     return render_template("admin/admin_search.html", results=results, search_term=search_term)
 
+@admin.route("/admin/users", methods=['GET'])
+@login_required
+def view_users():
+    users = User.query.offset(1).all()
+    return render_template("admin/admin_users.html", users=users)
+
 @admin.route("/admin/quiz-summary", methods=['GET'])
 @login_required
-#@admin_required
 def quiz_summary():
     subjects = Subject.query.all()
     top_scores = {}

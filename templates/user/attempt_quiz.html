@@ -13,9 +13,6 @@
                 let minutes = Math.floor(timeLeft/60);
                 let seconds = timeLeft % 60 ;
 
-                // let formattedminutes = minutes < 10 ? "0" + minutes : minutes;
-                // let formattedseconds = seconds < 10 ? "0" + seconds : seconds;
-
                 timerElement.innerText = `Time Remaining: ${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
                 if (timeLeft <= 0) {
                     clearInterval(countdown);
@@ -27,13 +24,24 @@
         window.onload = startTimer;
     </script>
 </head>
-<body class="bg-light">
+<body class="p-4">
+    <nav class="bg-light p-2 d-flex justify-content-between">
+        <div>
+            <a href="{{url_for('user.user_dashboard')}}" class="me-3">Home</a>
+            <a href="{{url_for('user.view_scores')}}" class="me-3">Scores</a>
+            <a href="{{url_for('user.quiz_summary')}}" class="me-3">Summary</a>
+            <a href="{{ url_for('auth.logout')}}" class="text-danger">Logout</a>
+        </div>
+        <form action="{{ url_for('user.user_search')}}" method="GET">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+    </nav>
     <div class="container mt-5">
         <div class="card shadow p-4">
             <h1 class="text-center text-primary">{{ quiz.title }}</h1>
-            <h4 id="timer" class="text-center text-danger fw-bold">Time Remaining: {{ quiz.time_duration }}:00</h4>
-            
-            <form id="quizform" method="POST" class="mt-4">
+            <h4 id="timer" class="text-center text-danger fw-bold"></h4>
+
+            <form id="quizform" method="post" class="mt-4">
                 {% for question in questions %}
                 <div class="mb-4">
                     <p class="fw-semibold">{{ loop.index }}. {{ question.question_statement }}</p>

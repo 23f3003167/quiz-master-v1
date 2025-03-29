@@ -14,14 +14,14 @@
     </script> -->
 </head>
 <body class="p-4">
-    <nav class="navbar navbar-light bg-light p-2 d-flex justify-content-between">
+    <nav class="bg-light p-3 d-flex justify-content-between">
         <div>
             <a href="{{url_for('admin.admin_dashboard')}}" class="me-3">Home</a>
             <a href="{{url_for('admin.view_users')}}" class="me-3">Users</a>
             <a href="{{url_for('admin.quiz_summary')}}" class="me-3">Summary</a>
             <a href="{{ url_for('auth.logout')}}" class="text-danger">Logout</a>
         </div>
-        <form action="{{ url_for('admin.admin_search')}}" method="GET" class="d-flex">
+        <form action="{{ url_for('admin.admin_search')}}" method="GET">
             <button type="submit" class="btn btn-primary">Search</button>
         </form>
     </nav>
@@ -52,7 +52,7 @@
                     <p><strong>Correct Option:</strong> Option {{ question.correct_option }}</p>
                     <div class="d-flex justify-content-between">
                         <a href="{{ url_for('admin.edit_question', question_id=question.id) }}" class="btn btn-sm btn-warning">Edit</a>
-                        <form method="POST" action="{{ url_for('admin.delete_question', question_id=question.id) }}" onsubmit="return confirm('Are you sure?');">
+                        <form method="post" action="{{ url_for('admin.delete_question', question_id=question.id) }}" onsubmit="return confirm('Are you sure?');">
                             <button type="submit" class="btn btn-sm btn-danger">Delete</button>
                         </form>
                     </div>
@@ -75,7 +75,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form method="POST">
+                        <form method="post">
                             <div class="mb-3">
                                 <label class="form-label">Question:</label>
                                 <textarea name="question_statement" class="form-control" required></textarea>

@@ -2,8 +2,6 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from models import db, Subject, Chapter, Quiz, Question, Score
 from datetime import datetime, date
-import pytz
-from functools import wraps
 
 user = Blueprint("user", __name__)
 
@@ -15,33 +13,12 @@ def user_dashboard():
     quiz_question_count = {quiz.id: Question.query.filter_by(quiz_id=quiz.id).count() for quiz in quizzes}
     return render_template('user/user_dashboard.html', quizzes=quizzes, quiz_question_count=quiz_question_count, today=today)
 
-# @user.route("/user/subjects", methods=['GET'])
-# @login_required
-# #@user_required
-# def user_subjects():
-    
-#     subjects = Subject.query.all()
-#     return render_template('user/user_subjects.html', subjects=subjects)
-
-# @user.route("/user/subjects/<int:subject_id>/quizzes", methods=['GET'])
-# @login_required
-# #@user_required
-# def user_quizzes(subject_id):
-    
-#     subject = Subject.query.get_or_404(subject_id)
-#     quizzes = Quiz.query.filter_by(chapter_id=subject.id).all()
-#     today = date.today()
-
-#     return render_template('user/user_quizzes.html',subject=subject, quizzes=quizzes, today=today)
-
 @user.route("/user/quizzes/<int:quiz_id>/attempt",methods=['GET','POST'])
 @login_required
 def attempt_quiz(quiz_id):
     
-    
     quiz = Quiz.query.get_or_404(quiz_id)
     questions = Question.query.filter_by(quiz_id=quiz_id).all()
-    ist = pytz.timezone('Asia/Kolkata')
 
     if request.method == 'GET':
         session['quiz_start_time'] = datetime.now().isoformat()
@@ -54,9 +31,7 @@ def attempt_quiz(quiz_id):
                 score += 1
 
         start_time = session.get('quiz_start_time')
-        print(start_time)
         end_time = datetime.now()
-        print(end_time)
 
         if start_time:
             start_time = datetime.fromisoformat(start_time)
@@ -82,18 +57,8 @@ def attempt_quiz(quiz_id):
     
     return render_template('user/attempt_quiz.html', quiz=quiz, questions=questions)
 
-@user.route("/user/scores", methods=['GET'])
-@login_required
-def view_scores():
-    
-    scores = Score.query.filter_by(user_id=current_user.id).order_by(Score.time_stamp_of_attempt.desc()).all()
-    quizzes = Quiz.query.all()
-    quiz_question_count = {quiz.id: Question.query.filter_by(quiz_id=quiz.id).count() for quiz in quizzes}
-    return render_template("user/user_scores.html", scores=scores, quiz_question_count=quiz_question_count)
-
 @user.route("/user/search", methods=['GET','POST'])
 @login_required
-#@user_required
 def user_search():
     
     results = []
@@ -108,9 +73,17 @@ def user_search():
 
     return render_template("user/user_search.html", results=results, search_term=search_term)
 
+@user.route("/user/scores", methods=['GET'])
+@login_required
+def view_scores():
+    
+    scores = Score.query.filter_by(user_id=current_user.id).order_by(Score.time_stamp_of_attempt.desc()).all()
+    quizzes = Quiz.query.all()
+    quiz_question_count = {quiz.id: Question.query.filter_by(quiz_id=quiz.id).count() for quiz in quizzes}
+    return render_template("user/user_scores.html", scores=scores, quiz_question_count=quiz_question_count)
+
 @user.route("/user/quiz-summary", methods=['GET'])
 @login_required
-#@user_required
 def quiz_summary():
     
     scores = Score.query.filter_by(user_id=current_user.id).all()
